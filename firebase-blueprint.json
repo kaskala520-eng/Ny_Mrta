@@ -1,0 +1,244 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Public & operational profile of a Meta.Ny user (no PII emails stored in this document).",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Authenticated user UID."
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "description": "Display name."
+        },
+        "isVIP": {
+          "type": "boolean",
+          "description": "Whether user has VIP access."
+        },
+        "hideAds": {
+          "type": "boolean",
+          "description": "Whether ads are hidden for this user."
+        },
+        "isBanned": {
+          "type": "boolean",
+          "description": "Whether user is suspended by an admin."
+        },
+        "usageCount": {
+          "type": "number",
+          "description": "Total tool executions."
+        },
+        "visitCount": {
+          "type": "number",
+          "description": "Total visits."
+        },
+        "vipExpiresAt": {
+          "type": "string",
+          "maxLength": 32,
+          "description": "Optional ISO date string for VIP expiration."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation timestamp enforced via request.time."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last update timestamp enforced via request.time."
+        }
+      },
+      "required": ["uid", "name", "isVIP", "hideAds", "isBanned", "usageCount", "visitCount", "createdAt", "updatedAt"]
+    },
+    "UserPrivateInfo": {
+      "title": "UserPrivateInfo",
+      "description": "Isolated PII document containing the user's private email address.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "email": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 254
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["uid", "email", "updatedAt"]
+    },
+    "AdminUser": {
+      "title": "AdminUser",
+      "description": "Trusted admin role marker document.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["admin"]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["uid", "role", "createdAt"]
+    },
+    "OrderRecord": {
+      "title": "OrderRecord",
+      "description": "Tracked user command / order with server-stored original and result file URLs.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "ownerUid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "userName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "command": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "details": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "status": {
+          "type": "string",
+          "enum": ["started", "success", "blocked", "error"]
+        },
+        "queryText": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "inputPreview": {
+          "type": "string",
+          "maxLength": 3000
+        },
+        "outputPreview": {
+          "type": "string",
+          "maxLength": 4000
+        },
+        "targetLang": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "originalFileUrl": {
+          "type": "string",
+          "maxLength": 2048
+        },
+        "originalFileStoragePath": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "originalFileName": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "originalFileSize": {
+          "type": "number"
+        },
+        "originalFileType": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "resultFileUrl": {
+          "type": "string",
+          "maxLength": 2048
+        },
+        "resultFileStoragePath": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "resultFileName": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "resultFileType": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "filesDeletedFromServer": {
+          "type": "boolean"
+        },
+        "retentionDays": {
+          "type": "number",
+          "description": "File retention duration in days captured at upload time."
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "maxLength": 64,
+          "description": "Automatic file expiration timestamp."
+        },
+        "autoDeleted": {
+          "type": "boolean",
+          "description": "True if files were automatically deleted after retention expiry."
+        },
+        "autoDeletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "maxLength": 64,
+          "description": "Timestamp when automatic deletion occurred."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["id", "ownerUid", "userName", "command", "details", "status", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "User operational profiles."
+    },
+    "/users/{userId}/private/{docId}": {
+      "schema": { "$ref": "#/entities/UserPrivateInfo" },
+      "description": "Isolated PII subcollection for user email/contact."
+    },
+    "/admins/{adminId}": {
+      "schema": { "$ref": "#/entities/AdminUser" },
+      "description": "Trusted admin role markers."
+    },
+    "/orders/{orderId}": {
+      "schema": { "$ref": "#/entities/OrderRecord" },
+      "description": "User orders and commands with cloud/server file references."
+    }
+  }
+}

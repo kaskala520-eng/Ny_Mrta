@@ -1,0 +1,6 @@
+{
+  "name": "Meta.Ny",
+  "description": "Meta.Ny - مساحتك الذكية للمستندات والترجمة والأسئلة والبحوث والصوت والصور",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

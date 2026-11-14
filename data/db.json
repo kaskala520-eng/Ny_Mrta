@@ -1,0 +1,103 @@
+{
+  "users": [
+    {
+      "id": "user_regular_demo",
+      "name": "مستخدم Meta.Ny",
+      "email": "user@example.com",
+      "isAdmin": false,
+      "isVIP": false,
+      "hideAds": false,
+      "usageCount": 1,
+      "dailyStreak": 12,
+      "lastLoginDate": "2026-11-14",
+      "createdAt": "2026-03-01"
+    }
+  ],
+  "files": [
+    {
+      "id": "file_demo_1",
+      "userId": "user_admin_ahmed",
+      "fileName": "بحث_الذكاء_الاصطناعي_في_التعليم.docx",
+      "fileSize": 46080,
+      "fileType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "serviceUsed": "research",
+      "title": "تقرير متكامل عن توظيف نماذج اللغة الكبيرة في التعليم الجامعي",
+      "resultContent": "مقدمة البحث...\nأهداف البحث والتوصيات.",
+      "createdAt": "2026-11-14T03:09:55.654Z"
+    }
+  ],
+  "chatMessages": [
+    {
+      "id": "msg_1",
+      "senderId": "admin",
+      "senderName": "فريق دعم Meta.Ny",
+      "senderRole": "admin",
+      "recipientId": "user_admin_ahmed",
+      "content": "أهلاً بك في Meta.Ny! فريق الدعم الفني جاهز لمساعدتك في أي وقت على مدار الساعة.",
+      "timestamp": "٠١:٠٩ ص",
+      "read": true
+    },
+    {
+      "id": "msg_2",
+      "senderId": "admin",
+      "senderName": "فريق دعم Meta.Ny",
+      "senderRole": "admin",
+      "recipientId": "user_admin_ahmed",
+      "content": "تم تفعيل صلاحيات VIP الأكاديمية لحسابك بنجاح.",
+      "timestamp": "٠٢:٠٩ ص",
+      "read": false
+    }
+  ],
+  "pages": [
+    {
+      "id": "page_welcome",
+      "key": "hero_welcome",
+      "title": "بانر الترحيب الرئيسي",
+      "content": "مرحباً بك في Meta.Ny - مساحتك الذكية للمستندات والترجمة والأسئلة والصوت والبحوث.",
+      "updatedAt": "2026-11-14T03:09:55.655Z"
+    },
+    {
+      "id": "page_notice",
+      "key": "bottom_notice",
+      "title": "شريط التنبيه السفلي",
+      "content": "يمكنك الآن استخدام التطبيق مجاناً مرّة واحدة، وبعد ذلك يمكنك مشاهدة 3 إعلانات أو الاشتراك في أحد الباقات.",
+      "updatedAt": "2026-11-14T03:09:55.655Z"
+    }
+  ],
+  "announcements": [],
+  "adPlatform": {
+    "provider": "hilltopads",
+    "enabled": false,
+    "directLinkUrl": "",
+    "inPageScriptUrl": "",
+    "popunderScriptUrl": "",
+    "nativeContainerId": "",
+    "nativeScriptUrl": "",
+    "bannerTop": {
+      "enabled": false,
+      "mode": "script_key",
+      "key": "",
+      "width": 728,
+      "height": 90,
+      "invokeUrl": ""
+    },
+    "bannerBottom": {
+      "enabled": false,
+      "mode": "script_key",
+      "key": "",
+      "width": 300,
+      "height": 250,
+      "invokeUrl": ""
+    },
+    "verificationMetaName": "",
+    "verificationMetaContent": "",
+    "verificationFileName": "",
+    "verificationFileContent": "",
+    "adsTxtContent": "",
+    "stats": {
+      "impressions": 0,
+      "directLinkClicks": 0
+    },
+    "updatedAt": "2026-11-14T03:09:55.656Z"
+  }
+}

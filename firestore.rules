@@ -1,0 +1,217 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global default-deny safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isEmailVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isBootstrappedAdmin() {
+      return isEmailVerified() && (
+        request.auth.token.email == 'kaskala520@gmail.com' ||
+        request.auth.token.email == 'nyfarwbn5@gmail.com' ||
+        request.auth.token.email == 'nyfaarubn@gmail.com' ||
+        request.auth.token.email == 'dalaneyup.world82@gmail.com'
+      );
+    }
+
+    function isAdmin() {
+      return isBootstrappedAdmin() || (
+        isEmailVerified() && exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isValidOptionalString(data, key, maxLen) {
+      return !(key in data) || (data[key] is string && data[key].size() <= maxLen);
+    }
+
+    function isValidUserProfile(data) {
+      return data.keys().hasAll([
+        'uid', 'name', 'isVIP', 'hideAds', 'isBanned',
+        'usageCount', 'visitCount', 'createdAt', 'updatedAt'
+      ])
+      && data.keys().hasOnly([
+        'uid', 'name', 'isVIP', 'hideAds', 'isBanned',
+        'usageCount', 'visitCount', 'vipExpiresAt', 'createdAt', 'updatedAt'
+      ])
+      && isValidId(data.uid)
+      && data.name is string && data.name.size() >= 1 && data.name.size() <= 120
+      && data.isVIP is bool
+      && data.hideAds is bool
+      && data.isBanned is bool
+      && data.usageCount is number && data.usageCount >= 0
+      && data.visitCount is number && data.visitCount >= 0
+      && isValidOptionalString(data, 'vipExpiresAt', 32)
+      && data.createdAt is timestamp
+      && data.updatedAt is timestamp;
+    }
+
+    function isValidUserPrivateInfo(data) {
+      return data.keys().hasAll(['uid', 'email', 'updatedAt'])
+      && data.keys().hasOnly(['uid', 'email', 'updatedAt'])
+      && isValidId(data.uid)
+      && data.email is string && data.email.size() >= 3 && data.email.size() <= 254
+      && data.updatedAt is timestamp;
+    }
+
+    function isValidAdminUser(data) {
+      return data.keys().hasAll(['uid', 'role', 'createdAt'])
+      && data.keys().hasOnly(['uid', 'role', 'createdAt'])
+      && isValidId(data.uid)
+      && data.role == 'admin'
+      && data.createdAt is timestamp;
+    }
+
+    function isValidOrderRecord(data) {
+      return data.keys().hasAll([
+        'id', 'ownerUid', 'userName', 'command', 'details', 'status', 'createdAt', 'updatedAt'
+      ])
+      && data.keys().hasOnly([
+        'id', 'ownerUid', 'userName', 'command', 'details', 'status',
+        'queryText', 'inputPreview', 'outputPreview', 'targetLang',
+        'originalFileUrl', 'originalFileStoragePath', 'originalFileName',
+        'originalFileSize', 'originalFileType',
+        'resultFileUrl', 'resultFileStoragePath', 'resultFileName', 'resultFileType',
+        'filesDeletedFromServer', 'retentionDays', 'expiresAt', 'autoDeleted', 'autoDeletedAt',
+        'createdAt', 'updatedAt'
+      ])
+      && isValidId(data.id)
+      && isValidId(data.ownerUid)
+      && data.userName is string && data.userName.size() >= 1 && data.userName.size() <= 120
+      && data.command is string && data.command.size() >= 1 && data.command.size() <= 64
+      && data.details is string && data.details.size() >= 1 && data.details.size() <= 500
+      && data.status in ['started', 'success', 'blocked', 'error']
+      && isValidOptionalString(data, 'queryText', 1000)
+      && isValidOptionalString(data, 'inputPreview', 3000)
+      && isValidOptionalString(data, 'outputPreview', 4000)
+      && isValidOptionalString(data, 'targetLang', 64)
+      && isValidOptionalString(data, 'originalFileUrl', 2048)
+      && isValidOptionalString(data, 'originalFileStoragePath', 512)
+      && isValidOptionalString(data, 'originalFileName', 256)
+      && (!('originalFileSize' in data) || (data.originalFileSize is number && data.originalFileSize >= 0))
+      && isValidOptionalString(data, 'originalFileType', 128)
+      && isValidOptionalString(data, 'resultFileUrl', 2048)
+      && isValidOptionalString(data, 'resultFileStoragePath', 512)
+      && isValidOptionalString(data, 'resultFileName', 256)
+      && isValidOptionalString(data, 'resultFileType', 128)
+      && (!('filesDeletedFromServer' in data) || data.filesDeletedFromServer is bool)
+      && (!('retentionDays' in data) || (data.retentionDays is number && data.retentionDays >= 1 && data.retentionDays <= 365))
+      && isValidOptionalString(data, 'expiresAt', 64)
+      && (!('autoDeleted' in data) || data.autoDeleted is bool)
+      && isValidOptionalString(data, 'autoDeletedAt', 64)
+      && data.createdAt is timestamp
+      && data.updatedAt is timestamp;
+    }
+
+    match /admins/{adminId} {
+      allow get: if isValidId(adminId) && ((isEmailVerified() && request.auth.uid == adminId) || isAdmin());
+      allow list: if isAdmin();
+      allow create: if isValidId(adminId)
+        && isValidAdminUser(incoming())
+        && incoming().uid == adminId
+        && incoming().createdAt == request.time
+        && isBootstrappedAdmin();
+      allow update: if false;
+      allow delete: if isValidId(adminId) && isBootstrappedAdmin();
+    }
+
+    match /users/{userId} {
+      allow get: if isValidId(userId) && ((isSignedIn() && request.auth.uid == userId) || isAdmin());
+      allow list: if isAdmin();
+      allow create: if isValidId(userId)
+        && isEmailVerified()
+        && request.auth.uid == userId
+        && isValidUserProfile(incoming())
+        && incoming().uid == userId
+        && incoming().isVIP == false
+        && incoming().isBanned == false
+        && incoming().hideAds == false
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(userId)
+        && isValidUserProfile(incoming())
+        && incoming().uid == existing().uid
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          isAdmin() || (
+            isEmailVerified()
+            && request.auth.uid == userId
+            && incoming().diff(existing()).affectedKeys().hasOnly(['name', 'usageCount', 'visitCount', 'updatedAt'])
+          )
+        );
+      allow delete: if isValidId(userId) && isAdmin();
+
+      match /private/{docId} {
+        allow get: if isValidId(userId) && isValidId(docId) && ((isSignedIn() && request.auth.uid == userId) || isAdmin());
+        allow list: if isValidId(userId) && ((isSignedIn() && request.auth.uid == userId) || isAdmin());
+        allow create: if isValidId(userId) && isValidId(docId)
+          && isEmailVerified()
+          && request.auth.uid == userId
+          && isValidUserPrivateInfo(incoming())
+          && incoming().uid == userId
+          && incoming().updatedAt == request.time;
+        allow update: if isValidId(userId) && isValidId(docId)
+          && isEmailVerified()
+          && request.auth.uid == userId
+          && isValidUserPrivateInfo(incoming())
+          && incoming().uid == existing().uid
+          && incoming().updatedAt == request.time
+          && incoming().diff(existing()).affectedKeys().hasOnly(['email', 'updatedAt']);
+        allow delete: if isValidId(userId) && isValidId(docId) && isAdmin();
+      }
+    }
+
+    match /orders/{orderId} {
+      allow get: if isValidId(orderId) && (isAdmin() || (isSignedIn() && existing().ownerUid == request.auth.uid));
+      allow list: if isSignedIn() && (isAdmin() || resource.data.ownerUid == request.auth.uid);
+      allow create: if isValidId(orderId)
+        && isEmailVerified()
+        && isValidOrderRecord(incoming())
+        && incoming().id == orderId
+        && incoming().ownerUid == request.auth.uid
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(orderId)
+        && isValidOrderRecord(incoming())
+        && incoming().id == existing().id
+        && incoming().ownerUid == existing().ownerUid
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          isAdmin() || (
+            isEmailVerified()
+            && existing().ownerUid == request.auth.uid
+            && existing().status != 'blocked'
+            && incoming().diff(existing()).affectedKeys().hasOnly([
+              'status', 'details', 'outputPreview',
+              'resultFileUrl', 'resultFileStoragePath', 'resultFileName', 'resultFileType',
+              'updatedAt'
+            ])
+          )
+        );
+      allow delete: if isValidId(orderId) && isAdmin();
+    }
+  }
+}
